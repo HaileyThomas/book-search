@@ -6,15 +6,11 @@ const resolvers = {
   Query: {
     // me
     me: async (parent, args, context) => {
-      if (context.user) {
-        const userData = await User.findOne({ _id: context.user._id })
-          .select("-__v -password")
-          .populate("savedBooks");
+      const userData = await User.findOne({ _id: context.user._id })
+        .select("-__v -password")
+        .populate("savedBooks");
 
-        return userData;
-      }
-
-      throw new AuthenticationError("Not logged in!");
+      return userData;
     },
     // get a single user by either id or username
     user: async (parent, { username }) => {
@@ -50,30 +46,23 @@ const resolvers = {
     },
     // save a book to a user's savedBooks field by adding it to the set (to prevent duplicates). user comes from `req.user` created in the auth middleware function
     saveBook: async (parent, { user, body }, context) => {
-      if (context.user) {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: user._id },
-          { $addToSet: { savedBooks: body } },
-          { new: true, runValidators: true }.populate("savedBooks")
-        );
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $addToSet: { savedBooks: body } },
+        { new: true, runValidators: true }.populate("savedBooks")
+      );
 
-        return updatedUser;
-      }
-
-      throw new AuthenticationError("You need to be logged in!");
+      return updatedUser;
     },
     // remove a book from savedBooks
     deleteBook: async (parent, { user, params }, context) => {
-      if (context.user) {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: user._id },
-          { $pull: { savedBooks: { bookId: params.bookId } } },
-          { new: true }
-        );
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $pull: { savedBooks: { bookId: params.bookId } } },
+        { new: true }
+      );
 
-        return updatedUser;
-      }
-      throw new AuthenticationError("You need to be logged in!");
+      return updatedUser;
     },
   },
 };
