@@ -48,12 +48,12 @@ const resolvers = {
       return { token, user };
     },
     // save a book to a user's savedBooks field by adding it to the set (to prevent duplicates). user comes from `req.user` created in the auth middleware function
-    saveBook: async (parent, { user, body }, context) => {
+    saveBook: async (parent, { newBook }, context) => {
       if (context.user) {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: user._id },
-          { $addToSet: { savedBooks: body } },
-          { new: true, runValidators: true }.populate("savedBooks")
+        const updatedUser = await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $push: { savedBooks: newBook } },
+          { new: true, runValidators: true }
         );
 
         return updatedUser;
@@ -61,11 +61,11 @@ const resolvers = {
       throw new AuthenticationError("You need to be logged in!");
     },
     // remove a book from savedBooks
-    deleteBook: async (parent, { user, params }, context) => {
+    deleteBook: async (parent, { bookId }, context) => {
       if (context.user) {
-        const updatedUser = await User.findOneAndUpdate(
-          { _id: user._id },
-          { $pull: { savedBooks: { bookId: params.bookId } } },
+        const updatedUser = await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId } } },
           { new: true }
         );
 
