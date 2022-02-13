@@ -10,13 +10,13 @@ import {
 import { useQuery } from "@apollo/client";
 import { GET_ME } from "../utils/queries";
 
-import { getMe, deleteBook } from "../utils/API";
+import { deleteBook } from "../utils/API";
 import Auth from "../utils/auth";
 import { removeBookId } from "../utils/localStorage";
 
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
-  const myData = data?.me || [];
+  const userData = data?.me || [];
 
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -30,7 +30,7 @@ const SavedBooks = () => {
         variables: { bookId },
       });
 
-      removedBookId(bookId);
+      removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
